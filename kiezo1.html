@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .hero-section {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+
+    .search-container {
+      width: 100%;
+      max-width: 700px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 20px 30px;
+      font-size: 18px;
+      border-radius: 50px;
+      border: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      background-color: white;
+      color: #333;
+      padding-left: 60px;
+      /* Increased padding for icon */
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 25px;
+      /* Adjusted for new padding */
+      top: 50%;
+      transform: translateY(-50%);
+      color: #0373F3;
+      font-size: 24px;
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: white;
+      border-radius: 20px;
+      margin-top: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+      /* Initially hidden */
+      text-align: left;
+      /* Align text to the left for results */
+      color: #333;
+      /* Text color for results */
+    }
+
+    .search-result-item {
+      padding: 15px 25px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .search-result-item:hover {
+      background-color: #f0f7ff;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .city-icon {
+      margin-right: 15px;
+      color: #0373F3;
+      font-size: 20px;
+    }
+
+    .highlight {
+      color: #0373F3;
+      font-weight: 600;
+    }
+
+    .tagline {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      max-width: 800px;
+      line-height: 1.2;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .sub-tagline {
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      max-width: 600px;
+      opacity: 0.9;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .popular-destinations {
+      position: absolute;
+      bottom: 50px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .destination-pill {
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .destination-pill:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tagline,
+    .sub-tagline,
+    .search-container {
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .sub-tagline {
+      animation-delay: 0.2s;
+    }
+
+    .search-container {
+      animation-delay: 0.4s;
+    }
+
+    .popular-destinations {
+      animation: fadeIn 0.8s ease forwards;
+      animation-delay: 0.6s;
+      opacity: 0;
+      /* Start hidden for animation */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hero-section">
+    <h1 class="tagline">Discover Hidden Gems Around the World</h1>
+    <p class="sub-tagline">Explore extraordinary places, create unforgettable memories, and find your next adventure</p>
+
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Where are you going?" id="citySearch">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <div class="popular-destinations">
+      <div class="destination-pill" data-city="Paris">Paris</div>
+      <div class="destination-pill" data-city="Barcelona">Barcelona</div>
+      <div class="destination-pill" data-city="Rome">Rome</div>
+      <div class="destination-pill" data-city="London">London</div>
+      <div class="destination-pill" data-city="Istanbul">Istanbul</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const cities = [
+        { name: "London", country: "United Kingdom" },
+        { name: "Berlin", country: "Germany" },
+        { name: "Madrid", country: "Spain" },
+        { name: "Rome", country: "Italy" },
+        { name: "Paris", country: "France" },
+        { name: "Vienna", country: "Austria" },
+        { name: "Hamburg", country: "Germany" },
+        { name: "Warsaw", country: "Poland" },
+        { name: "Bucharest", country: "Romania" },
+        { name: "Barcelona", country: "Spain" },
+        { name: "Izmir", country: "Turkey" },
+        { name: "Istanbul", country: "Turkey" }
+        // Add more cities as needed for the search
+      ];
+
+      const searchInput = document.getElementById('citySearch');
+      const searchResults = document.getElementById('searchResults');
+      const popularDestinations = document.querySelectorAll('.destination-pill');
+
+      // Function to highlight matching text
+      function highlightMatch(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'); // Escape special characters in query
+        return text.replace(regex, '<span class="highlight">$1</span>');
+      }
+
+      // Function to filter cities based on search query
+      function filterCities(query) {
+        if (!query) return [];
+
+        query = query.toLowerCase();
+        return cities.filter(city =>
+          city.name.toLowerCase().includes(query) ||
+          city.country.toLowerCase().includes(query)
+        );
+      }
+
+      // Function to render search results
+      function renderResults(results, query) {
+        searchResults.innerHTML = ''; // Clear previous results
+
+        if (results.length === 0 && query) { // Only show "no cities found" if there was a query
+          searchResults.innerHTML = `
+            <div class="search-result-item">
+                <i class="fas fa-map-marker-alt city-icon" style="color: #9ca3af;"></i> <span>No cities found matching "${highlightMatch(query, query)}"</span>
+            </div>
+          `;
+          return;
+        }
+
+        results.forEach(city => {
+          const resultItem = document.createElement('div');
+          resultItem.className = 'search-result-item';
+          // Highlight both city name and country if they match the query
+          const cityNameHighlighted = highlightMatch(city.name, query);
+          const countryNameHighlighted = highlightMatch(city.country, query);
+
+          resultItem.innerHTML = `
+            <i class="fas fa-map-marker-alt city-icon"></i>
+            <div>
+                <div>${cityNameHighlighted}</div>
+                <div class="text-sm text-gray-500">${countryNameHighlighted}</div>
+            </div>
+          `;
+
+          resultItem.addEventListener('click', () => {
+            selectCity(city.name);
+          });
+
+          searchResults.appendChild(resultItem);
+        });
+      }
+
+      // Function to handle city selection
+      function selectCity(cityName) {
+        console.log(`Selected city: ${cityName}`);
+        // MODIFIED LINE: Redirect to schedule.html with city parameter (lowercase)
+        window.location.href = `schedule.html?city=${encodeURIComponent(cityName.toLowerCase())}`;
+      }
+
+      // Event listener for search input
+      searchInput.addEventListener('input', function () {
+        const query = this.value.trim();
+        const results = filterCities(query);
+
+        if (query.length > 0) {
+          searchResults.style.display = 'block';
+          renderResults(results, query);
+        } else {
+          searchResults.style.display = 'none';
+        }
+      });
+
+      // Event listener for focus on search input
+      searchInput.addEventListener('focus', function () {
+        const query = this.value.trim();
+        if (query.length > 0) { // If there's already text in the input
+          const results = filterCities(query);
+          renderResults(results, query); // Re-render results
+          searchResults.style.display = 'block';
+        }
+        // If you want to show popular destinations or something else on focus with empty input, add logic here.
+      });
+
+      // Close search results when clicking outside
+      document.addEventListener('click', function (event) {
+        if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+          searchResults.style.display = 'none';
+        }
+      });
+
+      // Event listeners for popular destination pills
+      popularDestinations.forEach(pill => {
+        pill.addEventListener('click', function () {
+          const cityName = this.getAttribute('data-city');
+          selectCity(cityName);
+        });
+      });
+
+      // Add some visual flair - cursor animation on search input
+      searchInput.addEventListener('focus', function () {
+        this.style.boxShadow = '0 0 0 3px rgba(3, 115, 243, 0.3), 0 10px 25px rgba(0, 0, 0, 0.2)';
+      });
+
+      searchInput.addEventListener('blur', function () {
+        // Keep search results visible if the click was inside the results box
+        if (searchResults.style.display !== 'block' || !searchResults.contains(document.activeElement)) {
+          this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

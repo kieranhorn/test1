@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B'local - Authentication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            /* Added padding for smaller screens */
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            /* Slightly increased max-width */
+        }
+
+        .auth-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        .social-btn {
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-input {
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .auth-switch {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .auth-switch:hover {
+            color: #4f46e5;
+        }
+
+        .primary-btn {
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+            transition: all 0.3s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Message area styling */
+        #auth-message {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+            /* rounded-md */
+            font-size: 0.875rem;
+            /* text-sm */
+            display: none;
+            /* Hidden by default */
+        }
+
+        #auth-message.success {
+            background-color: #d1fae5;
+            /* green-100 */
+            color: #065f46;
+            /* green-700 */
+            border: 1px solid #6ee7b7;
+            /* green-300 */
+        }
+
+        #auth-message.error {
+            background-color: #fee2e2;
+            /* red-100 */
+            color: #b91c1c;
+            /* red-700 */
+            border: 1px solid #fca5a5;
+            /* red-300 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">B'local</h1>
+                    <p class="text-gray-500 mt-1">Connect with your local community</p>
+                </div>
+
+                <div id="auth-message" role="alert"></div>
+
+                <div id="auth-forms">
+                    <div id="signup-form" class="space-y-6">
+                        <h2 class="text-2xl font-semibold text-center text-gray-700">Create Account</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="signup-name" class="block text-sm font-medium text-gray-700 mb-1">Full
+                                    Name</label>
+                                <input type="text" id="signup-name" name="name"
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
+                                    placeholder="Enter your name" required>
+                            </div>
+                            <div>
+                                <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                    Address</label>
+                                <input type="email" id="signup-email" name="email"
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
+                                    placeholder="Enter your email" required>
+                            </div>
+                            <div>
+                                <label for="signup-password"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input type="password" id="signup-password" name="password"
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
+                                    placeholder="Create a password (min. 6 characters)" required minlength="6">
+                            </div>
+                            <button id="signup-button"
+                                class="primary-btn w-full py-3 text-white font-medium rounded-lg">Sign Up</button>
+                        </div>
+                        <div class="flex items-center my-4">
+                            <div class="flex-grow h-px bg-gray-200"></div>
+                            <span class="px-4 text-xs text-gray-400">or continue with</span>
+                            <div class="flex-grow h-px bg-gray-200"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button
+                                class="social-btn flex items-center justify-center py-2.5 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                    <path
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                        fill="#4285F4"></path>
+                                    <path
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                        fill="#34A853"></path>
+                                    <path
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                        fill="#FBBC05"></path>
+                                    <path
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                        fill="#EA4335"></path>
+                                </svg> Google
+                            </button>
+                            <button
+                                class="social-btn flex items-center justify-center py-2.5 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="black">
+                                    <path
+                                        d="M17.05 20.28c-.98.64-2.09 1.05-3.36 1.22-1.28.17-2.57-.07-3.87-.7-1.3-.64-2.4-1.63-3.3-2.95-.9-1.33-1.35-2.88-1.35-4.66 0-1.72.44-3.23 1.32-4.53.88-1.3 2.07-2.3 3.58-3.02 1.51-.7 3.13-.9 4.88-.56 1.75.33 3.23 1.22 4.44 2.66l-2.03 2.03c-.8-.92-1.74-1.54-2.84-1.87-1.1-.33-2.14-.32-3.13.04-.98.36-1.78.92-2.4 1.68-.62.76-.93 1.65-.93 2.66 0 1.1.32 2.06.97 2.88.65.82 1.5 1.4 2.54 1.74 1.04.34 2.11.36 3.2.05 1.09-.3 2-1 2.75-2.1h-5.18v-2.83h8.15c.11.57.17 1.13.17 1.7 0 1.4-.26 2.73-.78 4-.52 1.27-1.29 2.3-2.3 3.09l-.03.03z">
+                                    </path>
+                                </svg> Apple
+                            </button>
+                        </div>
+                        <div class="text-center text-xs text-gray-500 mt-3">
+                            By signing up, you agree to our <a href="#"
+                                class="text-indigo-600 hover:underline">Terms</a> and <a href="#"
+                                class="text-indigo-600 hover:underline">Privacy Policy</a>.
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Already have an account? <span id="switch-to-login"
+                                    class="auth-switch text-indigo-600 font-medium">Login</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <form id="login-form" class="space-y-6 hidden">
+                        <h2 class="text-2xl font-semibold text-center text-gray-700">Welcome Back</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                    Address</label>
+                                <input type="email" id="login-email" name="email"
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
+                                    placeholder="Enter your email" required>
+                            </div>
+                            <div>
+                                <label for="login-password"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input type="password" id="login-password" name="password"
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
+                                    placeholder="Enter your password" required>
+                            </div>
+                            <div class="text-right">
+                                <a href="#" id="forgot-password-link"
+                                    class="text-sm text-indigo-600 hover:underline">Forgot password?</a>
+                            </div>
+                            <button type="submit" id="login-button"
+                                class="primary-btn w-full py-3 text-white font-medium rounded-lg">Login</button>
+                        </div>
+                        <div class="flex items-center my-4">
+                            <div class="flex-grow h-px bg-gray-200"></div>
+                            <span class="px-4 text-xs text-gray-400">or continue with</span>
+                            <div class="flex-grow h-px bg-gray-200"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button"
+                                class="social-btn flex items-center justify-center py-2.5 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                    <path
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                        fill="#4285F4"></path>
+                                    <path
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                        fill="#34A853"></path>
+                                    <path
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                        fill="#FBBC05"></path>
+                                    <path
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                        fill="#EA4335"></path>
+                                </svg> Google
+                            </button>
+                            <button type="button"
+                                class="social-btn flex items-center justify-center py-2.5 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="black">
+                                    <path
+                                        d="M17.05 20.28c-.98.64-2.09 1.05-3.36 1.22-1.28.17-2.57-.07-3.87-.7-1.3-.64-2.4-1.63-3.3-2.95-.9-1.33-1.35-2.88-1.35-4.66 0-1.72.44-3.23 1.32-4.53.88-1.3 2.07-2.3 3.58-3.02 1.51-.7 3.13-.9 4.88-.56 1.75.33 3.23 1.22 4.44 2.66l-2.03 2.03c-.8-.92-1.74-1.54-2.84-1.87-1.1-.33-2.14-.32-3.13.04-.98.36-1.78.92-2.4 1.68-.62.76-.93 1.65-.93 2.66 0 1.1.32 2.06.97 2.88.65.82 1.5 1.4 2.54 1.74 1.04.34 2.11.36 3.2.05 1.09-.3 2-1 2.75-2.1h-5.18v-2.83h8.15c.11.57.17 1.13.17 1.7 0 1.4-.26 2.73-.78 4-.52 1.27-1.29 2.3-2.3 3.09l-.03.03z">
+                                    </path>
+                                </svg> Apple
+                            </button>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Don't have an account? <span id="switch-to-signup"
+                                    class="auth-switch text-indigo-600 font-medium">Sign Up</span>
+                            </p>
+                        </div>
+                    </form>
+
+                    <div id="forgot-password-form" class="space-y-6 hidden">
+                        <h2 class="text-2xl font-semibold text-center text-gray-700">Reset Password</h2>
+                        <p class="text-center text-sm text-gray-600">Enter your email address and we'll send you a link
+                            to reset your password.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                    Address</label>
+                                <input type="email" id="reset-email" name="email"
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none"
+                                    placeholder="Enter your email" required>
+                            </div>
+                            <button id="send-reset-link-button"
+                                class="primary-btn w-full py-3 text-white font-medium rounded-lg">Send Reset
+                                Link</button>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Remember your password? <span id="back-to-login"
+                                    class="auth-switch text-indigo-600 font-medium">Back to Login</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- IMPORTANT: Configure your backend base URL here ---
+            const BACKEND_URL = 'http://localhost:5001'; // Change 5001 if your backend runs on a different port
+
+            const signupFormDiv = document.getElementById('signup-form');
+            const loginFormEl = document.getElementById('login-form');
+            const forgotPasswordFormDiv = document.getElementById('forgot-password-form');
+
+            const switchToLoginLink = document.getElementById('switch-to-login');
+            const switchToSignupLink = document.getElementById('switch-to-signup');
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+            const backToLoginLink = document.getElementById('back-to-login');
+
+            const authMessageDiv = document.getElementById('auth-message');
+
+            function showMessage(message, type = 'error') {
+                authMessageDiv.textContent = message;
+                authMessageDiv.className = type;
+                authMessageDiv.style.display = 'block';
+            }
+
+            function clearMessage() {
+                authMessageDiv.textContent = '';
+                authMessageDiv.style.display = 'none';
+            }
+
+            function setButtonLoading(button, isLoading, originalText) {
+                if (isLoading) {
+                    button.disabled = true;
+                    button.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg> Processing...`;
+                } else {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            }
+
+            switchToLoginLink.addEventListener('click', function () {
+                clearMessage();
+                signupFormDiv.classList.add('hidden');
+                forgotPasswordFormDiv.classList.add('hidden');
+                loginFormEl.classList.remove('hidden');
+            });
+
+            switchToSignupLink.addEventListener('click', function () {
+                clearMessage();
+                loginFormEl.classList.add('hidden');
+                forgotPasswordFormDiv.classList.add('hidden');
+                signupFormDiv.classList.remove('hidden');
+            });
+
+            forgotPasswordLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                clearMessage();
+                loginFormEl.classList.add('hidden');
+                signupFormDiv.classList.add('hidden');
+                forgotPasswordFormDiv.classList.remove('hidden');
+            });
+
+            backToLoginLink.addEventListener('click', function () {
+                clearMessage();
+                forgotPasswordFormDiv.classList.add('hidden');
+                signupFormDiv.classList.add('hidden');
+                loginFormEl.classList.remove('hidden');
+            });
+
+            const signupButton = document.getElementById('signup-button');
+            if (signupButton) {
+                signupButton.addEventListener('click', async function () {
+                    clearMessage();
+                    const name = document.getElementById('signup-name').value;
+                    const email = document.getElementById('signup-email').value;
+                    const password = document.getElementById('signup-password').value;
+                    const originalButtonText = signupButton.innerHTML;
+
+                    if (!name || !email || !password) {
+                        showMessage('Please fill in all fields for signup.', 'error');
+                        return;
+                    }
+                    if (password.length < 6) {
+                        showMessage('Password must be at least 6 characters long.', 'error');
+                        return;
+                    }
+
+                    setButtonLoading(signupButton, true, originalButtonText);
+
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/auth/signup`, { // Using BACKEND_URL
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, email, password }),
+                        });
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            showMessage('Signup successful! Redirecting...', 'success');
+                            localStorage.setItem('authToken', data.token);
+                            localStorage.setItem('user', JSON.stringify(data.user));
+                            setTimeout(() => {
+                                window.location.href = 'kiezo3.html';
+                            }, 1500);
+                        } else {
+                            showMessage(data.message || 'Signup failed. Please try again.', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Signup error:', error);
+                        showMessage('A network error occurred during signup. Please try again.', 'error');
+                    } finally {
+                        setButtonLoading(signupButton, false, originalButtonText);
+                    }
+                });
+            }
+
+            if (loginFormEl) {
+                loginFormEl.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    clearMessage();
+
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    const loginButton = document.getElementById('login-button');
+                    const originalButtonText = loginButton.innerHTML;
+
+                    if (!email || !password) {
+                        showMessage('Please enter both email and password.', 'error');
+                        return;
+                    }
+
+                    setButtonLoading(loginButton, true, originalButtonText);
+
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/auth/login`, { // Using BACKEND_URL
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password }),
+                        });
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            showMessage('Login successful! Redirecting...', 'success');
+                            localStorage.setItem('authToken', data.token);
+                            localStorage.setItem('user', JSON.stringify(data.user));
+                            setTimeout(() => {
+                                window.location.href = 'kiezo3.html';
+                            }, 1500);
+                        } else {
+                            showMessage(data.message || 'Login failed. Please check your credentials.', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        showMessage('A network error occurred during login. Please try again.', 'error');
+                    } finally {
+                        setButtonLoading(loginButton, false, originalButtonText);
+                    }
+                });
+            }
+
+            const sendResetLinkButton = document.getElementById('send-reset-link-button');
+            if (sendResetLinkButton) {
+                sendResetLinkButton.addEventListener('click', async function () {
+                    clearMessage();
+                    const email = document.getElementById('reset-email').value;
+                    const originalButtonText = sendResetLinkButton.innerHTML;
+
+                    if (!email) {
+                        showMessage('Please enter your email address.', 'error');
+                        return;
+                    }
+
+                    setButtonLoading(sendResetLinkButton, true, originalButtonText);
+
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/auth/forgot-password`, { // Using BACKEND_URL
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email }),
+                        });
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            showMessage(data.message || 'If an account with that email exists, a password reset link has been sent.', 'success');
+                        } else {
+                            showMessage(data.message || 'Failed to send reset link. Please try again.', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Forgot password error:', error);
+                        showMessage('A network error occurred. Please try again.', 'error');
+                    } finally {
+                        setButtonLoading(sendResetLinkButton, false, originalButtonText);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

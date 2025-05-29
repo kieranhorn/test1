@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Styles for the added Navigation Bar (from kiezo3.html) */
+        .gradient-bg {
+            /* Used for logo in nav */
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link.active::after {
+            /* For active state underline in nav */
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #4f46e5;
+            /* Tailwind indigo-600 */
+            border-radius: 3px;
+        }
+
+        /* Existing Travel Dashboard Styles */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .trip-card {
+            transition: transform 0.3s ease;
+        }
+
+        .trip-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .avatar {
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+
+        .scroll-indicator {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-indicator:hover {
+            opacity: 1;
+        }
+
+        .dropdown-menu {
+            transform-origin: top right;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .dropdown-menu.hidden {
+            transform: scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .countdown {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 4px 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            position: absolute;
+            top: 12px;
+            left: 12px;
+        }
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 40%;
+            height: 3px;
+            background-color: #3b82f6;
+            border-radius: 2px;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        .traveler-menu {
+            transform-origin: top right;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .traveler-menu.hidden {
+            transform: scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .traveler-item {
+            transition: background-color 0.2s ease;
+        }
+
+        .traveler-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .traveler-avatar {
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+    </style>
+    <style>
+        *,
+        ::before,
+        ::after {
+            /* ... Tailwind Reset and Utility Classes as in your original files ... */
+        }
+
+        /* ... Ensure all Tailwind classes from your original file are here ... */
+        .focus\:ring-blue-500:focus {
+            --tw-ring-opacity: 1;
+            --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1))
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center">
+                        <div class="gradient-bg text-white font-bold text-xl p-2 rounded-lg">B'</div>
+                        <span class="ml-2 text-gray-800 font-semibold text-xl">local</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex space-x-8">
+                    <a href="kiezo3.html" class="nav-link text-gray-600 hover:text-gray-800">Home</a> <a
+                        href="pref.html" class="nav-link text-gray-600 hover:text-gray-800">My Preferences</a>
+                    <a href="traveldashboard.html" class="nav-link text-gray-600 hover:text-gray-800">Trip Dashboard</a>
+                    <a href="kiezo3.html#essentials" class="nav-link text-gray-600 hover:text-gray-800">Essentials</a>
+                    <a href="kiezo3.html#events" class="nav-link text-gray-600 hover:text-gray-800">What's On</a>
+                    <a href="Application.html" class="nav-link text-gray-600 hover:text-gray-800">Add Your Business</a>
+                </div>
+
+                <div class="flex items-center">
+                    <button id="itinerary-btn-nav" class="mr-4 flex items-center text-gray-600 hover:text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
+                        </svg>
+                        <span class="ml-1 hidden md:inline">Itinerary</span>
+                    </button>
+                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto px-4 py-8 max-w-7xl pt-20">
+        <header class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Travel Dashboard</h1>
+                    <p class="text-gray-600" id="current-date">Loading current date...</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="addNewTripBtn"
+                        class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        title="Add New Trip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                    </button>
+                    
+                   
+                </div>
+            </div>
+        </header>
+
+        <section class="mb-10">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800 section-title">Scheduled Trips</h2>
+                <div class="flex space-x-2">
+                    <button class="scroll-indicator prev-btn bg-white shadow-md rounded-full p-2 focus:outline-none"
+                        data-section="scheduled" title="Previous Scheduled"><svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg></button>
+                    <button class="scroll-indicator next-btn bg-white shadow-md rounded-full p-2 focus:outline-none"
+                        data-section="scheduled" title="Next Scheduled"><svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg></button>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="scheduled-trips-container overflow-x-auto scrollbar-hide pb-4">
+                    <div class="flex space-x-5" id="scheduled-trips"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800 section-title">Ongoing Trips</h2>
+                <div class="flex space-x-2">
+                    <button class="scroll-indicator prev-btn bg-white shadow-md rounded-full p-2 focus:outline-none"
+                        data-section="ongoing" title="Previous Ongoing"><svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg></button>
+                    <button class="scroll-indicator next-btn bg-white shadow-md rounded-full p-2 focus:outline-none"
+                        data-section="ongoing" title="Next Ongoing"><svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg></button>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="ongoing-trips-container overflow-x-auto scrollbar-hide pb-4">
+                    <div class="flex space-x-5" id="ongoing-trips"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800 section-title">Past Trips</h2>
+                <div class="flex space-x-2">
+                    <button class="scroll-indicator prev-btn bg-white shadow-md rounded-full p-2 focus:outline-none"
+                        data-section="past" title="Previous Past"><svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg></button>
+                    <button class="scroll-indicator next-btn bg-white shadow-md rounded-full p-2 focus:outline-none"
+                        data-section="past" title="Next Past"><svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg></button>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="past-trips-container overflow-x-auto scrollbar-hide pb-4">
+                    <div class="flex space-x-5" id="past-trips"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="edit-modal" class="modal fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Edit Trip</h3>
+                    <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700"><svg
+                            xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg></button>
+                </div>
+                <form id="edit-trip-form">
+                    <input type="hidden" id="edit-trip-id">
+                    <div class="mb-4"><label class="block text-gray-700 text-sm font-medium mb-2"
+                            for="edit-city">City</label><input
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            id="edit-city" type="text" required=""></div>
+                    <div class="mb-4"><label class="block text-gray-700 text-sm font-medium mb-2"
+                            for="edit-country">Country</label><input
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            id="edit-country" type="text" required=""></div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div><label class="block text-gray-700 text-sm font-medium mb-2" for="edit-start-date">Start
+                                Date</label><input
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="edit-start-date" type="date" required=""></div>
+                        <div><label class="block text-gray-700 text-sm font-medium mb-2" for="edit-end-date">End
+                                Date</label><input
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="edit-end-date" type="date" required=""></div>
+                    </div>
+                    <div class="flex justify-end space-x-3"><button type="button" id="cancel-edit"
+                            class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none">Cancel</button><button
+                            type="submit"
+                            class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none">Save
+                            Changes</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="download-toast"
+        class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"></path>
+        </svg>
+        <span>Trip data downloaded successfully!</span>
+    </div>
+
+    <script>
+        let trips = [
+            // Sample trips, can be augmented by localStorage trip
+        ];
+
+        // ... (All existing JavaScript functions: createCityImage, formatDate, getCountdown, getAvatarColor, createTripCard, sortTrips, renderTrips, updateCurrentDate, setupScrollButtons, modal functions, setupCopyLink, setupTravelerGroupClicks, init) ...
+        // Ensure the init function and createTripCard modifications from the previous step are included here.
+        // For brevity, I'm not repeating the entire JS block if it's largely the same as the last version you approved,
+        // but the key changes for localStorage and image handling should be there.
+
+        // Function to create SVG city images (placeholder)
+        function createCityImage(cityName, color) {
+            return `<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="200" fill="${color}" /><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" fill="white">${cityName}</text></svg>`;
+        }
+        function getAvatarColor(initial) {
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6', '#f97316', '#84cc16'];
+            if (!initial) return colors[0];
+            const index = initial.charCodeAt(0) % colors.length;
+            return colors[index];
+        }
+
+        function getCountdown(targetDateStr) {
+            const now = new Date();
+            const target = new Date(targetDateStr);
+            const diff = target - now;
+            if (diff <= 0) return null;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            if (days === 0 && hours > 0) return `Starts in: ${hours} Hours`;
+            if (days > 0) return `Starts in: ${days} Days ${hours} Hours`;
+            return `Starts very soon!`;
+        }
+
+
+        function createTripCard(trip, type) {
+            const card = document.createElement('div');
+            card.className = 'trip-card relative flex-shrink-0 w-72 h-48 rounded-xl overflow-hidden shadow-lg';
+            card.dataset.tripId = trip.id;
+
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'absolute inset-0 bg-cover bg-center';
+
+            if (trip.image && (trip.image.startsWith('http') || trip.image.startsWith('images/') || trip.image.startsWith('/images/'))) {
+                imageContainer.style.backgroundImage = `url('${trip.image}')`;
+            } else if (trip.image && trip.image.startsWith('<svg')) {
+                imageContainer.innerHTML = trip.image;
+            } else {
+                imageContainer.innerHTML = createCityImage(trip.city, '#cccccc');
+            }
+            card.appendChild(imageContainer);
+            card.innerHTML += `<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>`;
+
+            if (type === 'scheduled') {
+                const countdownText = getCountdown(trip.startDate);
+                if (countdownText) {
+                    const el = document.createElement('div'); el.className = 'countdown'; el.textContent = countdownText; card.appendChild(el);
+                }
+            } else if (type === 'ongoing') {
+                const el = document.createElement('div'); el.className = 'countdown pulse-animation'; el.textContent = 'Ongoing'; el.style.backgroundColor = 'rgba(34, 197, 94, 0.7)'; card.appendChild(el);
+            }
+
+            const details = document.createElement('div');
+            details.className = 'absolute bottom-4 left-4';
+            details.innerHTML = `<h3 class="text-white text-xl font-bold">${trip.city}</h3><div class="flex items-center text-white/90 text-sm"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>${trip.country}</div>`;
+            card.appendChild(details);
+
+            const travelersDiv = document.createElement('div');
+            travelersDiv.className = 'absolute bottom-4 right-4 flex -space-x-2 travelers-group';
+            travelersDiv.dataset.tripId = trip.id;
+            if (trip.travelers && Array.isArray(trip.travelers) && trip.travelers.length > 0) {
+                trip.travelers.slice(0, 2).forEach(t => {
+                    const av = document.createElement('div'); av.className = 'avatar'; av.textContent = t.initial || '?'; av.style.backgroundColor = getAvatarColor(av.textContent); travelersDiv.appendChild(av);
+                });
+                if (trip.travelers.length > 2) {
+                    const rem = document.createElement('div'); rem.className = 'avatar bg-gray-500/80'; rem.textContent = `+${trip.travelers.length - 2}`; travelersDiv.appendChild(rem);
+                }
+            }
+            card.appendChild(travelersDiv);
+
+            const menuBtn = document.createElement('button'); /* ... menu button setup ... */
+            menuBtn.className = 'absolute top-3 right-3 p-1 rounded-full bg-black/30 text-white hover:bg-black/50 focus:outline-none';
+            menuBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>`;
+            const dropdown = document.createElement('div'); /* ... dropdown setup ... */
+            dropdown.className = 'dropdown-menu absolute top-10 right-3 bg-white rounded-lg shadow-xl py-2 w-40 hidden z-10';
+            let menuItems = [];
+            if (type === 'scheduled' || type === 'ongoing') {
+                menuItems = [{ icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', text: 'Edit trip', action: 'edit' }, { icon: 'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z', text: 'Share trip', action: 'share' }, { icon: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', text: 'Delete trip', action: 'delete' }];
+            } else { menuItems = [{ icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4', text: 'Download data', action: 'download' }, { icon: 'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z', text: 'Share trip', action: 'share' }, { icon: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', text: 'Delete trip', action: 'delete' }]; }
+            menuItems.forEach(item => { const mi = document.createElement('button'); mi.className = 'w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center'; mi.dataset.action = item.action; mi.dataset.tripId = trip.id; mi.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}" /></svg>${item.text}`; dropdown.appendChild(mi); });
+            card.appendChild(menuBtn); card.appendChild(dropdown);
+
+            return card;
+        }
+
+        function sortTrips() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const scheduled = [], ongoing = [], past = [];
+            trips.forEach(trip => {
+                const startDate = new Date(trip.startDate); startDate.setHours(0, 0, 0, 0);
+                const endDate = new Date(trip.endDate); endDate.setHours(23, 59, 59, 999);
+                if (startDate > today) scheduled.push(trip);
+                else if (endDate < today) past.push(trip);
+                else ongoing.push(trip);
+            });
+            scheduled.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+            ongoing.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+            past.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+            return { scheduled, ongoing, past };
+        }
+        function renderTrips() {
+            const { scheduled, ongoing, past } = sortTrips();
+            const sc = document.getElementById('scheduled-trips'); sc.innerHTML = '';
+            const oc = document.getElementById('ongoing-trips'); oc.innerHTML = '';
+            const pc = document.getElementById('past-trips'); pc.innerHTML = '';
+            scheduled.forEach(t => sc.appendChild(createTripCard(t, 'scheduled')));
+            ongoing.forEach(t => oc.appendChild(createTripCard(t, 'ongoing')));
+            past.forEach(t => pc.appendChild(createTripCard(t, 'past')));
+            if (scheduled.length === 0) sc.innerHTML = `<div class="flex flex-col items-center justify-center w-72 h-48 bg-gray-100 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg><p class="text-gray-500">No scheduled trips</p></div>`;
+            if (ongoing.length === 0) oc.innerHTML = `<div class="flex flex-col items-center justify-center w-72 h-48 bg-gray-100 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><p class="text-gray-500">No ongoing trips</p></div>`;
+            if (past.length === 0) pc.innerHTML = `<div class="flex flex-col items-center justify-center w-72 h-48 bg-gray-100 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-gray-500">No past trips</p></div>`;
+        }
+        function updateCurrentDate() {
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        function setupScrollButtons() {
+            document.querySelectorAll('.prev-btn').forEach(b => b.addEventListener('click', () => document.querySelector(`.${b.dataset.section}-trips-container`).scrollBy({ left: -300, behavior: 'smooth' })));
+            document.querySelectorAll('.next-btn').forEach(b => b.addEventListener('click', () => document.querySelector(`.${b.dataset.section}-trips-container`).scrollBy({ left: 300, behavior: 'smooth' })));
+        }
+        function setupMenuButtons() {
+            document.addEventListener('click', (e) => {
+                const activeDropdown = document.querySelector('.dropdown-menu:not(.hidden)');
+                let clickedMenuButton = e.target.closest('button.absolute.top-3.right-3');
+                let clickedInsideActiveDropdown = activeDropdown && activeDropdown.contains(e.target);
+
+                if (activeDropdown && !clickedInsideActiveDropdown && (!clickedMenuButton || (clickedMenuButton && !activeDropdown.previousElementSibling.isSameNode(clickedMenuButton)))) {
+                    activeDropdown.classList.add('hidden');
+                }
+                if (clickedMenuButton) {
+                    const dropdown = clickedMenuButton.nextElementSibling;
+                    if (dropdown && dropdown.classList.contains('dropdown-menu')) {
+                        dropdown.classList.toggle('hidden');
+                        e.stopPropagation();
+                    }
+                }
+                if (e.target.closest('[data-action]')) {
+                    const action = e.target.closest('[data-action]').dataset.action;
+                    const tripId = parseInt(e.target.closest('[data-action]').dataset.tripId);
+                    const trip = trips.find(t => t.id === tripId);
+                    if (trip) {
+                        if (action === 'edit') openEditModal(trip);
+                        else if (action === 'share') openShareModal(trip);
+                        else if (action === 'delete') openDeleteModal(trip);
+                        else if (action === 'download') downloadTripData(trip);
+                    }
+                }
+            });
+        }
+        function openEditModal(trip) {
+            const modal = document.getElementById('edit-modal');
+            modal.classList.remove('hidden'); modal.classList.add('active');
+            document.getElementById('edit-trip-id').value = trip.id;
+            document.getElementById('edit-city').value = trip.city;
+            document.getElementById('edit-country').value = trip.country;
+            document.getElementById('edit-start-date').value = trip.startDate;
+            document.getElementById('edit-end-date').value = trip.endDate;
+            document.getElementById('edit-trip-form').onsubmit = e => {
+                e.preventDefault();
+                const updatedTrip = trips.find(t => t.id === parseInt(document.getElementById('edit-trip-id').value));
+                if (updatedTrip) {
+                    updatedTrip.city = document.getElementById('edit-city').value;
+                    updatedTrip.country = document.getElementById('edit-country').value;
+                    updatedTrip.startDate = document.getElementById('edit-start-date').value;
+                    updatedTrip.endDate = document.getElementById('edit-end-date').value;
+                }
+                renderTrips(); closeEditModal();
+            };
+        }
+        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); document.getElementById('edit-modal').classList.remove('active'); }
+        function openShareModal(trip) { document.getElementById('share-trip-name').textContent = `${trip.city}, ${trip.country}`; document.getElementById('share-modal').classList.remove('hidden'); document.getElementById('share-modal').classList.add('active'); }
+        function closeShareModal() { document.getElementById('share-modal').classList.add('hidden'); document.getElementById('share-modal').classList.remove('active'); }
+        function openDeleteModal(trip) {
+            document.getElementById('delete-trip-name').textContent = `${trip.city}, ${trip.country}`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('delete-modal').classList.add('active');
+            document.getElementById('confirm-delete').onclick = () => {
+                trips = trips.filter(t => t.id !== trip.id);
+                renderTrips(); closeDeleteModal();
+            };
+        }
+        function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); document.getElementById('delete-modal').classList.remove('active'); }
+        function downloadTripData(trip) {
+            const toast = document.getElementById('download-toast');
+            toast.style.transform = 'translateY(0)'; toast.style.opacity = '1';
+            setTimeout(() => { toast.style.transform = 'translateY(20px)'; toast.style.opacity = '0'; }, 3000);
+        }
+        function setupCopyLink() {
+            const cb = document.getElementById('copy-link'); const sl = document.getElementById('share-link');
+            if (cb && sl) { // Ensure elements exist
+                cb.addEventListener('click', () => { sl.select(); document.execCommand('copy'); cb.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`; setTimeout(() => cb.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`, 2000); });
+            }
+        }
+        function openTravelersModal(trip) {
+            const modal = document.getElementById('travelers-modal');
+            document.getElementById('travelers-trip-name').textContent = `${trip.city}, ${trip.country}`;
+            const listEl = document.getElementById('travelers-list'); listEl.innerHTML = '';
+            trip.travelers.forEach((traveler, index) => {
+                const item = document.createElement('li');
+                item.className = 'traveler-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50';
+                item.innerHTML = `<div class="flex items-center space-x-3"><div class="traveler-avatar" style="background-color: ${getAvatarColor(traveler.initial)}">${traveler.initial}</div><div><p class="font-medium text-gray-800">${traveler.name}</p><p class="text-sm text-gray-500">${traveler.role}</p></div></div><button class="traveler-menu-btn p-1 rounded-full hover:bg-gray-200" data-traveler-index="${index}" data-trip-id="${trip.id}"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg></button>`;
+                listEl.appendChild(item);
+            });
+            modal.classList.remove('hidden'); modal.classList.add('active');
+        }
+        function closeTravelersModal() { document.getElementById('travelers-modal').classList.add('hidden'); document.getElementById('travelers-modal').classList.remove('active'); }
+        function openTravelerActionModal(trip, travelerIndex) {
+            const traveler = trip.travelers[travelerIndex];
+            const modal = document.getElementById('traveler-action-modal');
+            document.getElementById('action-traveler-avatar').textContent = traveler.initial;
+            document.getElementById('action-traveler-avatar').style.backgroundColor = getAvatarColor(traveler.initial);
+            document.getElementById('action-traveler-name').textContent = traveler.name;
+            document.getElementById('action-traveler-role').textContent = traveler.role;
+            const actionList = modal.querySelector('ul'); // Assuming the ul is always present
+            actionList.innerHTML = `<li><button class="w-full text-left px-4 py-3 rounded-md hover:bg-gray-100">View Profile</button></li>`;
+            modal.classList.remove('hidden'); modal.classList.add('active');
+        }
+        function closeTravelerActionModal() { document.getElementById('traveler-action-modal').classList.add('hidden'); document.getElementById('traveler-action-modal').classList.remove('active'); }
+
+        document.getElementById('addNewTripBtn').addEventListener('click', () => {
+            window.location.href = 'kiezo1.html';
+        });
+
+        // NEW: Event listener for the Itinerary button in the nav
+        const itineraryNavBtn = document.getElementById('itinerary-btn-nav');
+        if (itineraryNavBtn) {
+            itineraryNavBtn.addEventListener('click', () => {
+                // This is a placeholder. You'd need to implement
+                // how the itinerary is displayed, perhaps by linking to kiezo3.html's sidebar
+                // or by having a similar sidebar on this page.
+                // For now, let's assume it might link to kiezo3.html or open a local one if available.
+                // If kiezo3.html is where the itinerary is managed:
+                window.location.href = 'kiezo3.html#itinerary-sidebar'; // This won't directly open the sidebar, but navigates
+                alert("Itinerary button in nav clicked. Implement sidebar toggle or navigation.");
+            });
+        }
+
+
+        function init() {
+            const newTripDataString = localStorage.getItem('newlyScheduledTrip');
+            if (newTripDataString) {
+                try {
+                    const newTripDetails = JSON.parse(newTripDataString);
+                    const maxId = trips.reduce((max, trip) => Math.max(max, trip.id || 0), 0);
+                    const newTripId = maxId + 1;
+                    const formattedNewTrip = {
+                        id: newTripId,
+                        city: newTripDetails.cityName,
+                        country: newTripDetails.countryName,
+                        startDate: newTripDetails.startDate,
+                        endDate: newTripDetails.endDate,
+                        image: newTripDetails.cityImage,
+                        travelers: newTripDetails.travelers || [{ initial: '1', name: '1 Traveler', role: 'Traveler' }],
+                        budget: newTripDetails.budget,
+                        drivingLicense: newTripDetails.drivingLicense,
+                        invitedCompanions: newTripDetails.invitedCompanions || [],
+                        travelersCount: newTripDetails.travelersCount
+                    };
+                    trips.push(formattedNewTrip);
+                    localStorage.removeItem('newlyScheduledTrip');
+                } catch (e) {
+                    console.error("Error processing newly scheduled trip:", e);
+                    localStorage.removeItem('newlyScheduledTrip');
+                }
+            }
+
+            updateCurrentDate();
+            renderTrips();
+            setupScrollButtons();
+            setupMenuButtons();
+            setupCopyLink();
+            // setupTravelerGroupClicks(); // This seems to be duplicated or conflicting with menu clicks, ensure it's needed and correctly scoped if re-enabled.
+            document.addEventListener('click', (e) => { // Combined event listener for travelers groups
+                const travelersGroup = e.target.closest('.travelers-group');
+                if (travelersGroup) {
+                    const tripId = parseInt(travelersGroup.dataset.tripId);
+                    const trip = trips.find(t => t.id === tripId);
+                    if (trip && trip.travelers && trip.travelers.length > 0) { // Only open if travelers exist
+                        openTravelersModal(trip);
+                        e.stopPropagation();
+                    } else if (trip) {
+                        // Handle case where travelersCount exists but travelers array is empty/placeholder
+                        console.log("Traveler count:", trip.travelersCount, "but no detailed traveler objects.");
+                        // Potentially open a simplified modal or show an info message
+                    }
+                }
+                const travelerMenuBtn = e.target.closest('.traveler-menu-btn');
+                if (travelerMenuBtn) {
+                    const tripId = parseInt(travelerMenuBtn.dataset.tripId);
+                    const travelerIndex = parseInt(travelerMenuBtn.dataset.travelerIndex);
+                    const trip = trips.find(t => t.id === tripId);
+                    if (trip) { openTravelerActionModal(trip, travelerIndex); e.stopPropagation(); }
+                }
+            });
+
+
+            document.getElementById('close-edit-modal')?.addEventListener('click', closeEditModal);
+            document.getElementById('cancel-edit')?.addEventListener('click', closeEditModal);
+            document.getElementById('close-share-modal')?.addEventListener('click', closeShareModal);
+            document.getElementById('done-sharing')?.addEventListener('click', closeShareModal);
+            document.getElementById('close-delete-modal')?.addEventListener('click', closeDeleteModal);
+            document.getElementById('cancel-delete')?.addEventListener('click', closeDeleteModal);
+            document.getElementById('close-travelers-modal')?.addEventListener('click', closeTravelersModal);
+            document.getElementById('done-travelers')?.addEventListener('click', closeTravelersModal);
+            document.getElementById('close-traveler-action-modal')?.addEventListener('click', closeTravelerActionModal);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

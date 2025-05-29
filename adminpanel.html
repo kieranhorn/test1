@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+            border-bottom: 1px solid #e5e7eb;
+            /* For x-axis line */
+            padding-bottom: 20px;
+            /* Space for labels */
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 20px;
+            /* Align with padding-bottom */
+            width: 8%;
+            /* Adjust as needed */
+            background: linear-gradient(to top, #4f46e5, #6366f1);
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s ease-out;
+            /* Smoother transition */
+            display: flex;
+            align-items: flex-end;
+            /* For tooltips/values if added directly */
+            justify-content: center;
+        }
+
+        .chart-bar:hover::after {
+            /* Tooltip on hover */
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #374151;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+
+        .table-row {
+            transition: all 0.2s ease;
+        }
+
+        .table-row:hover {
+            background-color: #f9fafb;
+        }
+
+        .tab-button {
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            border-radius: 0.375rem 0.375rem 0 0;
+            font-weight: 500;
+            color: #4b5563;
+            /* inactive tab text */
+            background-color: #e5e7eb;
+            /* inactive tab bg */
+            border: 1px solid #d1d5db;
+            border-bottom: none;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: white;
+            color: #4f46e5;
+            /* active tab text */
+            border-color: #d1d5db;
+            border-bottom: 1px solid white;
+            /* To merge with content area */
+            position: relative;
+            top: 1px;
+            /* Slight lift */
+        }
+
+        .tab-content {
+            display: none;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 0 0 0.375rem 0.375rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Styling for file inputs to look more like other inputs */
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            color: #4b5563;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, .075);
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        input[type="file"]:focus {
+            border-color: #4f46e5;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, .25);
+        }
+
+        input[type="file"]::file-selector-button {
+            padding: 0.5rem 0.75rem;
+            margin: -0.5rem -0.75rem;
+            /* Adjust for padding */
+            margin-right: 0.75rem;
+            color: #fff;
+            background-color: #4f46e5;
+            border: 0;
+            border-radius: 0.375rem 0 0 0.375rem;
+            /* Adjust for rounded corners */
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color .15s ease-in-out;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background-color: #4338ca;
+        }
+
+        .conditional-field {
+            display: none;
+            /* Hidden by default */
+        }
+    </style>
+    <style>
+        *,
+        ::before,
+        ::after {
+            box-sizing: border-box;
+            border-width: 0;
+            border-style: solid;
+            border-color: #e5e7eb
+        }
+
+        ::after,
+        ::before {
+            --tw-content: ''
+        }
+
+        html {
+            line-height: 1.5;
+            -webkit-text-size-adjust: 100%;
+            -moz-tab-size: 4;
+            tab-size: 4;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            font-feature-settings: normal;
+            font-variation-settings: normal;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        body {
+            margin: 0;
+            line-height: inherit
+        }
+
+        hr {
+            height: 0;
+            color: inherit;
+            border-top-width: 1px
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-size: inherit;
+            font-weight: inherit
+        }
+
+        a {
+            color: inherit;
+            text-decoration: inherit
+        }
+
+        b,
+        strong {
+            font-weight: bolder
+        }
+
+        img,
+        video {
+            max-width: 100%;
+            height: auto
+        }
+
+        [hidden] {
+            display: none !important
+        }
+
+        button,
+        input,
+        optgroup,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: 100%;
+            font-weight: inherit;
+            line-height: inherit;
+            color: inherit;
+            margin: 0;
+            padding: 0
+        }
+
+        button,
+        select {
+            text-transform: none
+        }
+
+        button,
+        [type=button],
+        [type=reset],
+        [type=submit] {
+            -webkit-appearance: button;
+            background-color: transparent;
+            background-image: none
+        }
+    </style>
+    
+</head>
+
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <div class="w-64 bg-indigo-800 text-white py-6 flex-col hidden md:flex fixed h-full overflow-y-auto">
+            <div class="px-6 mb-8">
+                <h1 class="text-2xl font-bold">Admin Panel</h1>
+            </div>
+            <nav class="flex-1">
+                <div class="px-4 space-y-1">
+                    <a href="#dashboard"
+                        class="sidebar-link flex items-center px-2 py-3 text-white bg-indigo-900 rounded-md group">
+                        <i class="fas fa-tachometer-alt mr-3 w-5 text-center"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#applications"
+                        class="sidebar-link flex items-center px-2 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700 rounded-md group">
+                        <i class="fas fa-file-alt mr-3 w-5 text-center"></i>
+                        <span>Applications</span>
+                    </a>
+                    <a href="#manage-cities"
+                        class="sidebar-link flex items-center px-2 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700 rounded-md group">
+                        <i class="fas fa-city mr-3 w-5 text-center"></i>
+                        <span>Manage Cities</span>
+                    </a>
+                    <a href="#manage-content"
+                        class="sidebar-link flex items-center px-2 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700 rounded-md group">
+                        <i class="fas fa-edit mr-3 w-5 text-center"></i>
+                        <span>Manage Content</span>
+                    </a>
+                    <a href="#users"
+                        class="sidebar-link flex items-center px-2 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700 rounded-md group">
+                        <i class="fas fa-users mr-3 w-5 text-center"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="#settings"
+                        class="sidebar-link flex items-center px-2 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700 rounded-md group">
+                        <i class="fas fa-cog mr-3 w-5 text-center"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="px-6 py-4 border-t border-indigo-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <span class="text-lg font-semibold">AD</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">Admin User</p>
+                        <p class="text-xs text-indigo-300">Administrator</p>
+                    </div>
+                </div>
+                <button
+                    class="mt-4 w-full flex items-center justify-center px-4 py-2 text-sm text-indigo-100 bg-indigo-700 rounded-md hover:bg-indigo-600">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-auto md:ml-64">
+            <header class="bg-white shadow-sm sticky top-0 z-10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center md:hidden">
+                            <button type="button" id="mobile-menu-button"
+                                class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                                <i class="fas fa-bars text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <h2 id="main-content-title" class="text-xl font-semibold text-gray-800">Dashboard Overview
+                            </h2>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button class="text-gray-500 hover:text-gray-700 relative">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="notification-dot"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <section id="dashboard" class="content-section">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                        <div class="stat-card bg-white rounded-lg shadow p-6 border-l-4 border-indigo-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Active Viewers</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="viewer-count">0</h3>
+                                    <p class="text-sm text-gray-500 mt-1 viewer-change">--</p>
+                                </div>
+                                <div class="bg-indigo-100 p-3 rounded-full"><i
+                                        class="fas fa-eye text-indigo-600 text-xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Total Emails</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="total-emails">0</h3>
+                                    <p class="text-sm text-green-600 mt-1" id="emails-today-change">+0 today</p>
+                                </div>
+                                <div class="bg-blue-100 p-3 rounded-full"><i
+                                        class="fas fa-envelope text-blue-600 text-xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Pending Apps</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="pending-applications-count">0</h3>
+                                    <p class="text-sm text-gray-500 mt-1" id="total-applications-stat">Total
+                                        applications</p>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-full"><i
+                                        class="fas fa-file-alt text-green-600 text-xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Total Cities</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="total-cities-count">0</h3>
+                                    <p class="text-sm text-green-600 mt-1" id="cities-week-change">+0 this week</p>
+                                </div>
+                                <div class="bg-yellow-100 p-3 rounded-full"><i
+                                        class="fas fa-city text-yellow-600 text-xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Listed Content</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="total-content-count">0</h3>
+                                    <p class="text-sm text-green-600 mt-1" id="content-week-change">+0 this week</p>
+                                </div>
+                                <div class="bg-purple-100 p-3 rounded-full"><i
+                                        class="fas fa-edit text-purple-600 text-xl"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow p-6 col-span-1 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">Website Traffic</h3>
+                                <div class="flex space-x-2" id="traffic-period-buttons">
+                                    <button data-period="hour"
+                                        class="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200">Hour</button>
+                                    <button data-period="day"
+                                        class="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200">Day</button>
+                                    <button data-period="week"
+                                        class="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md">Week</button>
+                                </div>
+                            </div>
+                            <div class="chart-container" id="traffic-chart">
+                            </div>
+                            <div id="traffic-chart-labels" class="flex justify-between mt-1 text-xs text-gray-500 px-2">
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex justify-between"><span>Sign-ups (Today):</span> <strong
+                                        id="signups-today">0</strong></li>
+                                <li class="flex justify-between"><span>Active Users (Today):</span> <strong
+                                        id="active-users-today">0</strong></li>
+                                <li class="flex justify-between"><span>Avg. Session Time:</span> <strong
+                                        id="avg-session-time">0m</strong></li>
+                                <li class="flex justify-between"><span>Bounce Rate:</span> <strong
+                                        id="bounce-rate">0%</strong></li>
+                                <li class="flex justify-between text-green-600"><span>Revenue (This Month):</span>
+                                    <strong id="revenue-month">$0</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="applications" class="content-section hidden">
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Business Applications</h3>
+                            <select id="application-status-filter"
+                                class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Applicant / Business</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Type</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Date</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applications-table-body" class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-gray-500">Loading applications...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="manage-cities" class="content-section hidden">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Manage Cities</h3>
+                    <div class="bg-white p-6 rounded-lg shadow mb-8">
+                        <h4 class="text-lg font-medium text-gray-700 mb-4">Add New City</h4>
+                        <form id="add-city-form" class="space-y-4">
+                            <div>
+                                <label for="city-name" class="block text-sm font-medium text-gray-700">City Name</label>
+                                <input type="text" id="city-name" name="cityName" required class="input-field">
+                            </div>
+                            <div>
+                                <label for="city-country"
+                                    class="block text-sm font-medium text-gray-700">Country</label>
+                                <input type="text" id="city-country" name="cityCountry" required class="input-field">
+                            </div>
+                            <div>
+                                <label for="city-image-file" class="block text-sm font-medium text-gray-700">Display
+                                    Image (for card)</label>
+                                <input type="file" id="city-image-file" name="cityImageFile" accept="image/*"
+                                    class="mt-1">
+                            </div>
+                            <div>
+                                <label for="city-is-popular" class="flex items-center">
+                                    <input type="checkbox" id="city-is-popular" name="isPopular"
+                                        class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                    <span class="ml-2 text-sm text-gray-700">Mark as Popular Location</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn-primary">Add City</button>
+                        </form>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h4 class="text-lg font-medium text-gray-700 mb-4">Existing Cities</h4>
+                        <ul id="existing-cities-list" class="divide-y divide-gray-200">
+                            <li class="py-3 text-gray-500">Loading cities...</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="manage-content" class="content-section hidden">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Manage Content</h3>
+                    <div class="mb-4 border-b border-gray-300">
+                        <nav class="-mb-px flex space-x-1 sm:space-x-4" aria-label="Tabs">
+                            <button data-tab="recommendations-tab" class="tab-button active">Recommendations</button>
+                            <button data-tab="events-tab" class="tab-button">Events</button>
+                        </nav>
+                    </div>
+
+                    <div id="recommendations-tab" class="tab-content active">
+                        <div class="bg-white p-6 rounded-lg shadow mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Add New Recommendation</h4>
+                            <form id="add-recommendation-form" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label for="rec-name" class="block text-sm font-medium">Name</label><input
+                                            type="text" id="rec-name" name="name" required class="input-field"></div>
+                                    <div><label for="rec-city" class="block text-sm font-medium">City</label><select
+                                            id="rec-city" name="city" required class="input-field bg-white"></select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="rec-category" class="block text-sm font-medium">Category</label>
+                                        <select id="rec-category" name="category" required class="input-field bg-white">
+                                            <option value="">Select Category...</option>
+                                            <option value="restaurant">Restaurant</option>
+                                            <option value="activity">Activity</option> {/* */}
+                                            <option value="bar">Bar</option>
+                                            <option value="club">Club</option>
+                                            <option value="museum">Museum</option>
+                                            <option value="sightseeing">Sightseeing</option>
+                                        </select>
+                                    </div>
+                                    <div><label for="rec-image-file"
+                                            class="block text-sm font-medium">Image</label><input type="file"
+                                            id="rec-image-file" name="recImageFile" accept="image/*" class="mt-1"></div>
+                                </div>
+                                {/* */}
+                                <div id="rec-price-range-container" class="conditional-field">
+                                    <label for="rec-price-range" class="block text-sm font-medium">Price Range</label>
+                                    <select id="rec-price-range" name="price_range" class="input-field bg-white">
+                                        <option value="">Select Price...</option>
+                                        <option value="$">$ (Inexpensive)</option>
+                                        <option value="$$">$$ (Moderate)</option>
+                                        <option value="$$$">$$$ (Pricey)</option>
+                                        <option value="$$$$">$$$$ (Very Expensive)</option>
+                                    </select>
+                                </div>
+                                <div><label for="rec-description"
+                                        class="block text-sm font-medium">Description</label><textarea
+                                        id="rec-description" name="description" rows="3" class="input-field"></textarea>
+                                </div>
+                                <div><label for="rec-address" class="block text-sm font-medium">Address</label><input
+                                        type="text" id="rec-address" name="address" class="input-field"></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label for="rec-rating" class="block text-sm font-medium">Rating
+                                            (1-5)</label><input type="number" id="rec-rating" name="rating" min="1"
+                                            max="5" step="0.1" class="input-field"></div>
+                                    <div><label for="rec-dietary" class="block text-sm font-medium">Dietary (e.g.,
+                                            vegan, halal)</label><input type="text" id="rec-dietary"
+                                            name="dietary_preferences" placeholder="comma-separated"
+                                            class="input-field"></div>
+                                </div>
+                                <div><label for="rec-music" class="block text-sm font-medium">Music Types (for
+                                        bars/clubs/activities)</label><input type="text" id="rec-music"
+                                        name="music_preferences" placeholder="comma-separated" class="input-field">
+                                </div>
+                                <button type="submit" class="btn-primary">Add Recommendation</button>
+                            </form>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Existing Recommendations</h4>
+                            <ul id="existing-recommendations-list" class="divide-y divide-gray-200">
+                                <li class="py-3 text-gray-500">Loading...</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="events-tab" class="tab-content">
+                        <div class="bg-white p-6 rounded-lg shadow mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Add New Event</h4>
+                            <form id="add-event-form" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label for="event-name" class="block text-sm font-medium">Event
+                                            Name</label><input type="text" id="event-name" name="name" required
+                                            class="input-field"></div>
+                                    <div><label for="event-city" class="block text-sm font-medium">City</label><select
+                                            id="event-city" name="city" required class="input-field bg-white"></select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label for="event-category" class="block text-sm font-medium">Event
+                                            Category</label>
+                                        <select id="event-category" name="category" required
+                                            class="input-field bg-white">
+                                            <option value="">Select Category...</option>
+                                            <option value="party">Party</option>
+                                            <option value="popup">Pop-up Store</option>
+                                            <option value="art_gallery">Art Gallery</option> {/* Changed for consistency
+                                            */} <option value="concert">Concert</option>
+                                            <option value="food_festival">Food Festival</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div><label for="event-image-file"
+                                            class="block text-sm font-medium">Image</label><input type="file"
+                                            id="event-image-file" name="eventImageFile" accept="image/*" class="mt-1">
+                                    </div>
+                                </div>
+                                <div><label for="event-description"
+                                        class="block text-sm font-medium">Description</label><textarea
+                                        id="event-description" name="description" rows="3"
+                                        class="input-field"></textarea></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label for="event-date-time" class="block text-sm font-medium">Date & Time
+                                            Info</label><input type="text" id="event-date-time" name="date_time"
+                                            placeholder="e.g., Tomorrow, This Friday 8 PM" class="input-field"></div>
+                                    <div><label for="event-location"
+                                            class="block text-sm font-medium">Location/Venue</label><input type="text"
+                                            id="event-location" name="location" class="input-field"></div>
+                                </div>
+                                <button type="submit" class="btn-primary">Add Event</button>
+                            </form>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Existing Events</h4>
+                            <ul id="existing-events-list" class="divide-y divide-gray-200">
+                                <li class="py-3 text-gray-500">Loading...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="users" class="content-section hidden">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">User Management</h3>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <p class="text-gray-600">User management interface will go here. (List users, view details,
+                            manage roles, etc.)</p>
+                        <ul id="users-list" class="divide-y divide-gray-200 mt-4">
+                            <li class="py-3 text-gray-500">Loading users...</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="settings" class="content-section hidden">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Settings</h3>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <p class="text-gray-600">Application settings will go here. (API keys, site configuration, etc.)
+                        </p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="mobile-sidebar" class="fixed inset-0 z-30 flex md:hidden hidden">
+        <div class="fixed inset-0 bg-black opacity-50" id="mobile-sidebar-overlay"></div>
+        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-indigo-800 text-white py-6">
+            <div class="absolute top-0 right-0 -mr-12 pt-2">
+                <button type="button" id="close-mobile-sidebar"
+                    class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                    <span class="sr-only">Close sidebar</span>
+                    <i class="fas fa-times text-white text-xl"></i>
+                </button>
+            </div>
+            <div class="px-6 mb-8">
+                <h1 class="text-2xl font-bold">Admin Panel</h1>
+            </div>
+            <nav class="flex-1">
+                <div class="px-4 space-y-1"></div>
+            </nav>
+            <div class="px-6 py-4 border-t border-indigo-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center"><span
+                            class="text-lg font-semibold">AD</span></div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">Admin User</p>
+                        <p class="text-xs text-indigo-300">Administrator</p>
+                    </div>
+                </div><button
+                    class="mt-4 w-full flex items-center justify-center px-4 py-2 text-sm text-indigo-100 bg-indigo-700 rounded-md hover:bg-indigo-600"><i
+                        class="fas fa-sign-out-alt mr-2"></i> Logout</button>
+            </div>
+        </div>
+        <div class="flex-shrink-0 w-14" aria-hidden="true"></div>
+    </div>
+
+    <script>
+        // --- Helper Styles for Forms ---
+        const inputFieldClasses = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm".split(" ");
+        const btnPrimaryClasses = "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500".split(" ");
+
+        function applyStyles() {
+            document.querySelectorAll('.input-field').forEach(el => {
+                if (el.type !== 'file') { // Don't apply to file inputs as they have specific styling
+                    el.classList.add(...inputFieldClasses);
+                }
+            });
+            document.querySelectorAll('.btn-primary').forEach(el => el.classList.add(...btnPrimaryClasses));
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applyStyles(); // Apply styles on initial load
+
+            const mainContentTitle = document.getElementById('main-content-title');
+            const contentSections = document.querySelectorAll('.content-section');
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+            const closeMobileSidebarButton = document.getElementById('close-mobile-sidebar');
+            const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+
+            // --- Mobile Sidebar Logic ---
+            if (mobileMenuButton && mobileSidebar && closeMobileSidebarButton && mobileSidebarOverlay) {
+                const desktopNavContainer = document.querySelector('.w-64.bg-indigo-800 nav .px-4.space-y-1');
+                const mobileNavContainer = mobileSidebar.querySelector('nav .px-4.space-y-1');
+                if (desktopNavContainer && mobileNavContainer) {
+                    mobileNavContainer.innerHTML = desktopNavContainer.innerHTML;
+                    mobileSidebar.querySelectorAll('.sidebar-link').forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const sectionId = link.getAttribute('href').substring(1);
+                            showSection(sectionId);
+                            mobileSidebar.classList.add('hidden');
+                        });
+                    });
+                }
+                mobileMenuButton.addEventListener('click', () => mobileSidebar.classList.remove('hidden'));
+                closeMobileSidebarButton.addEventListener('click', () => mobileSidebar.classList.add('hidden'));
+                mobileSidebarOverlay.addEventListener('click', () => mobileSidebar.classList.add('hidden'));
+            }
+
+
+            // --- Tab Switching for Manage Content ---
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const targetTab = button.dataset.tab;
+                    tabContents.forEach(content => {
+                        content.classList.toggle('active', content.id === targetTab);
+                    });
+                    // Load content for the newly active tab
+                    if (targetTab === 'recommendations-tab' && document.getElementById('manage-content').classList.contains('hidden') === false) {
+                        loadAndDisplayContent('recommendations');
+                    } else if (targetTab === 'events-tab' && document.getElementById('manage-content').classList.contains('hidden') === false) {
+                        loadAndDisplayContent('events');
+                    }
+                });
+            });
+
+
+            // --- Single Page App Navigation ---
+            function showSection(sectionId) {
+                contentSections.forEach(section => section.classList.add('hidden'));
+                const activeSection = document.getElementById(sectionId);
+                if (activeSection) activeSection.classList.remove('hidden');
+
+                const activeLink = document.querySelector(`.sidebar-link[href="#${sectionId}"]`);
+                if (activeLink) {
+                    mainContentTitle.textContent = activeLink.querySelector('span').textContent;
+                    sidebarLinks.forEach(link => {
+                        link.classList.remove('bg-indigo-900', 'text-white');
+                        link.classList.add('text-indigo-200', 'hover:text-white', 'hover:bg-indigo-700');
+                    });
+                    activeLink.classList.add('bg-indigo-900', 'text-white');
+                    activeLink.classList.remove('text-indigo-200');
+                }
+                window.scrollTo(0, 0);
+                if (window.location.hash !== `#${sectionId}`) { // Avoid pushing same hash
+                    window.location.hash = sectionId;
+                }
+
+
+                // Trigger data loading for specific sections if they are now visible
+                if (sectionId === 'dashboard') { // Load dashboard specific data
+                    fetchTrafficStats(document.querySelector('#traffic-period-buttons button.bg-indigo-600')?.dataset.period || 'week');
+                    fetchQuickStats();
+                }
+                if (sectionId === 'applications') fetchAndDisplayApplications(document.getElementById('application-status-filter')?.value || 'pending');
+                if (sectionId === 'manage-cities') loadAndDisplayCities();
+                if (sectionId === 'manage-content') {
+                    const activeTabButton = document.querySelector('#manage-content .tab-button.active');
+                    if (activeTabButton) {
+                        if (activeTabButton.dataset.tab === 'recommendations-tab') loadAndDisplayContent('recommendations');
+                        else if (activeTabButton.dataset.tab === 'events-tab') loadAndDisplayContent('events');
+                    } else { // Default to recommendations if no tab is explicitly active (e.g. on first load of this section)
+                        loadAndDisplayContent('recommendations');
+                    }
+                }
+                if (sectionId === 'users') loadAndDisplayUsers();
+            }
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const sectionId = this.getAttribute('href').substring(1);
+                    showSection(sectionId);
+                });
+            });
+            // Handle hash changes (e.g. browser back/forward buttons)
+            window.addEventListener('hashchange', () => {
+                const sectionIdFromHash = window.location.hash ? window.location.hash.substring(1) : 'dashboard';
+                if (document.getElementById(sectionIdFromHash)) {
+                    showSection(sectionIdFromHash);
+                } else {
+                    showSection('dashboard'); // Fallback
+                }
+            });
+
+
+            const initialSection = window.location.hash ? window.location.hash.substring(1) : 'dashboard';
+            if (document.getElementById(initialSection)) {
+                showSection(initialSection);
+            } else {
+                showSection('dashboard');
+            }
+
+
+            // --- Applications ---
+            const applicationsTableBody = document.getElementById('applications-table-body');
+            const appStatusFilter = document.getElementById('application-status-filter');
+            async function fetchAndDisplayApplications(statusFilter = 'pending') {
+                if (!applicationsTableBody) return;
+                applicationsTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Loading applications...</td></tr>';
+                try {
+                    const response = await fetch(`/api/admin/applications?status=${statusFilter === 'all' ? '' : statusFilter}`); // HYPOTHETICAL
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const applications = await response.json();
+
+                    const pendingCount = applications.filter(app => app.status?.toLowerCase() === 'pending' || app.status?.toLowerCase() === 'review').length;
+                    if (document.getElementById('pending-applications-count')) document.getElementById('pending-applications-count').textContent = pendingCount;
+                    if (document.getElementById('total-applications-stat')) document.getElementById('total-applications-stat').textContent = `${applications.length} total`;
+
+
+                    applicationsTableBody.innerHTML = '';
+                    if (applications.length === 0) {
+                        applicationsTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">No ${statusFilter} applications found.</td></tr>`;
+                        return;
+                    }
+                    applications.forEach(app => {
+                        const row = applicationsTableBody.insertRow();
+                        row.className = 'table-row';
+                        const appName = app.business_name || 'N/A';
+                        const appType = app.business_type || 'N/A';
+                        const appDate = app.submission_date ? new Date(app.submission_date).toLocaleDateString() : 'N/A';
+                        let statusBadge;
+                        switch (app.status?.toLowerCase()) {
+                            case 'approved': statusBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>'; break;
+                            case 'rejected': statusBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>'; break;
+                            default: statusBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Pending</span>';
+                        }
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${appName}</div><div class="text-xs text-gray-500">${app.email || ''}</div></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${appType}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${appDate}</td>
+                            <td class="px-6 py-4 whitespace-nowrap status-cell">${statusBadge}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick="viewApplication('${app.id}')" class="text-indigo-600 hover:text-indigo-900 mr-2">View</button>
+                                ${(app.status?.toLowerCase() === 'pending' || app.status?.toLowerCase() === 'review') ? `
+                                <button onclick="updateApplicationStatus('${app.id}', 'approved', this)" class="text-green-600 hover:text-green-900 mr-2">Approve</button>
+                                <button onclick="updateApplicationStatus('${app.id}', 'rejected', this)" class="text-red-600 hover:text-red-900">Reject</button>
+                                ` : ''}
+                            </td>`;
+                    });
+                } catch (error) {
+                    console.error('Error fetching applications:', error);
+                    applicationsTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Could not load applications.</td></tr>';
+                }
+            }
+            if (appStatusFilter) appStatusFilter.addEventListener('change', (e) => fetchAndDisplayApplications(e.target.value));
+
+
+            // --- Analytics ---
+            const viewerCountElement = document.getElementById('viewer-count');
+            const viewerChangeElement = document.querySelector('.viewer-change');
+            let previousViewerCount = 0;
+
+            function updateLiveViewers() {
+                if (!viewerCountElement || !viewerChangeElement) return;
+                const currentCountVal = parseInt(viewerCountElement.textContent) || 0;
+                const change = Math.floor(Math.random() * 11) - 5;
+                const newCount = Math.max(0, currentCountVal + change);
+                viewerCountElement.textContent = newCount;
+                const diff = newCount - previousViewerCount;
+                if (diff > 0) {
+                    viewerChangeElement.className = 'text-sm text-green-600 mt-1 viewer-change';
+                    viewerChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${diff}`;
+                } else if (diff < 0) {
+                    viewerChangeElement.className = 'text-sm text-red-600 mt-1 viewer-change';
+                    viewerChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(diff)}`;
+                } else {
+                    viewerChangeElement.className = 'text-sm text-gray-500 mt-1 viewer-change';
+                    viewerChangeElement.innerHTML = `No change`;
+                }
+                previousViewerCount = newCount;
+            }
+            setInterval(updateLiveViewers, 5000);
+            updateLiveViewers();
+
+
+            const trafficChartContainer = document.getElementById('traffic-chart');
+            const trafficChartLabelsContainer = document.getElementById('traffic-chart-labels');
+            async function fetchTrafficStats(period = 'week') {
+                if (!trafficChartContainer || !trafficChartLabelsContainer) return;
+                trafficChartContainer.innerHTML = '<p class="text-center text-gray-500 py-10">Loading chart...</p>';
+                trafficChartLabelsContainer.innerHTML = '';
+                try {
+                    let mockData; // Using mock data as API is hypothetical
+                    if (period === 'hour') mockData = { labels: ['-5h', '-4h', '-3h', '-2h', '-1h', 'Now'], data: [10, 15, 12, 18, 20, 25].map(v => v + Math.floor(Math.random() * 5)) };
+                    else if (period === 'day') mockData = { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].slice(0, new Date().getDay() + 1), data: [65, 59, 80, 81, 56, 55, 40].slice(0, new Date().getDay() + 1).map(v => v + Math.floor(Math.random() * 20)) };
+                    else mockData = { labels: ['W1', 'W2', 'W3', 'W4'], data: [300, 450, 280, 500].map(v => v + Math.floor(Math.random() * 100)) };
+                    const trafficData = mockData;
+
+                    trafficChartContainer.innerHTML = '';
+                    const maxValue = Math.max(...trafficData.data, 1);
+                    const barCount = trafficData.data.length;
+                    const barWidthPercentage = barCount > 0 ? (100 / barCount) * 0.7 : 10;
+                    const barSpacingPercentage = barCount > 0 ? (100 / barCount) * 0.15 : 0;
+
+                    trafficData.data.forEach((value, index) => {
+                        const barHeight = (value / maxValue) * 100;
+                        const bar = document.createElement('div');
+                        bar.className = 'chart-bar';
+                        bar.style.width = `${barWidthPercentage}%`;
+                        bar.style.left = `${index * (barWidthPercentage + barSpacingPercentage * 2) + barSpacingPercentage}%`;
+                        bar.style.height = '0%';
+                        bar.setAttribute('data-tooltip', `${value} visitors`);
+                        trafficChartContainer.appendChild(bar);
+                        setTimeout(() => { bar.style.height = `${barHeight}%`; }, index * 50 + 50);
+                    });
+                    trafficChartLabelsContainer.innerHTML = '';
+                    trafficData.labels.forEach(label => {
+                        const span = document.createElement('span');
+                        span.className = "flex-1 text-center text-xs";
+                        span.textContent = label;
+                        trafficChartLabelsContainer.appendChild(span);
+                    });
+
+                } catch (error) {
+                    console.error(`Error fetching traffic stats for ${period}:`, error);
+                    trafficChartContainer.innerHTML = '<p class="text-center text-red-500 py-10">Could not load traffic data.</p>';
+                }
+            }
+            const trafficPeriodButtons = document.getElementById('traffic-period-buttons');
+            if (trafficPeriodButtons) {
+                trafficPeriodButtons.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', function () {
+                        trafficPeriodButtons.querySelectorAll('button').forEach(btn => {
+                            btn.classList.remove('bg-indigo-600', 'text-white');
+                            btn.classList.add('bg-indigo-100', 'text-indigo-700');
+                        });
+                        this.classList.add('bg-indigo-600', 'text-white');
+                        this.classList.remove('bg-indigo-100', 'text-indigo-700');
+                        fetchTrafficStats(this.dataset.period);
+                    });
+                });
+            }
+
+
+            // --- Manage Cities ---
+            const addCityForm = document.getElementById('add-city-form');
+            const existingCitiesList = document.getElementById('existing-cities-list');
+            const recCitySelect = document.getElementById('rec-city');
+            const eventCitySelect = document.getElementById('event-city');
+
+            async function loadCitiesForForms() {
+                if (!recCitySelect || !eventCitySelect) return;
+                try {
+                    const response = await fetch('/api/cities');
+                    if (!response.ok) throw new Error('Failed to fetch cities for forms');
+                    const cities = await response.json();
+
+                    recCitySelect.innerHTML = '<option value="">Select City</option>';
+                    eventCitySelect.innerHTML = '<option value="">Select City</option>';
+                    cities.forEach(city => {
+                        recCitySelect.add(new Option(city.name, city.id || city.name));
+                        eventCitySelect.add(new Option(city.name, city.id || city.name));
+                    });
+                } catch (error) { console.error(error.message); }
+            }
+            async function loadAndDisplayCities() {
+                if (!existingCitiesList) return;
+                existingCitiesList.innerHTML = '<li class="py-3 text-gray-500">Loading cities...</li>';
+                try {
+                    const response = await fetch('/api/cities');
+                    if (!response.ok) throw new Error('Failed to fetch cities');
+                    const cities = await response.json();
+                    if (document.getElementById('total-cities-count')) document.getElementById('total-cities-count').textContent = cities.length;
+
+                    existingCitiesList.innerHTML = '';
+                    if (cities.length === 0) {
+                        existingCitiesList.innerHTML = '<li class="py-3 text-gray-500">No cities added yet.</li>';
+                        return;
+                    }
+                    cities.forEach(city => {
+                        const li = document.createElement('li');
+                        li.className = 'py-3 flex justify-between items-center';
+                        li.innerHTML = `<span>${city.name}, ${city.country} ${city.isPopular ? '<span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full ml-1">Popular</span>' : ''}</span>
+                                        <div>
+                                            <button onclick="editCity('${city.id}')" class="text-indigo-600 hover:text-indigo-900 text-sm mr-2">Edit</button>
+                                            <button onclick="deleteCity('${city.id}')" class="text-red-600 hover:text-red-900 text-sm">Delete</button>
+                                        </div>`;
+                        existingCitiesList.appendChild(li);
+                    });
+                    await loadCitiesForForms();
+                } catch (error) {
+                    console.error(error.message);
+                    existingCitiesList.innerHTML = '<li class="py-3 text-red-500">Could not load cities.</li>';
+                }
+            }
+            if (addCityForm) {
+                addCityForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this); // This will correctly include the file from 'cityImageFile'
+                    // 'isPopular' checkbox: if not checked, it won't be in formData. Handle on backend or add manually:
+                    if (!formData.has('isPopular')) formData.append('isPopular', 'false');
+                    else formData.set('isPopular', 'true');
+
+
+                    try {
+                        const response = await fetch('/api/cities/add', { method: 'POST', body: formData });
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({ message: 'Failed to add city. Ensure image is valid.' }));
+                            throw new Error(errData.message);
+                        }
+                        alert('City added successfully!'); this.reset(); loadAndDisplayCities();
+                    } catch (error) { console.error(error.message); alert('Error adding city: ' + error.message); }
+                });
+            }
+
+
+            // --- Manage Content (Recommendations / Events) ---
+            const addRecommendationForm = document.getElementById('add-recommendation-form');
+            const existingRecommendationsList = document.getElementById('existing-recommendations-list');
+            const addEventForm = document.getElementById('add-event-form');
+            const existingEventsList = document.getElementById('existing-events-list');
+            const recCategorySelect = document.getElementById('rec-category');
+            const recPriceRangeContainer = document.getElementById('rec-price-range-container');
+
+            if (recCategorySelect && recPriceRangeContainer) {
+                recCategorySelect.addEventListener('change', function () {
+                    const selectedCategory = this.value;
+                    if (selectedCategory === 'restaurant' || selectedCategory === 'activity') {
+                        recPriceRangeContainer.style.display = 'block';
+                    } else {
+                        recPriceRangeContainer.style.display = 'none';
+                    }
+                });
+            }
+
+
+            async function loadAndDisplayContent(type = 'recommendations') {
+                const listElement = type === 'recommendations' ? existingRecommendationsList : existingEventsList;
+                if (!listElement) return;
+                listElement.innerHTML = '<li class="py-3 text-gray-500">Loading content...</li>';
+                try {
+                    const response = await fetch(`/api/admin/${type}`);
+                    if (!response.ok) throw new Error(`Failed to fetch ${type}`);
+                    const items = await response.json();
+
+                    if (type === 'recommendations' && document.getElementById('total-content-count')) {
+                        // This could sum recs and events for a total content count
+                        const eventResponse = await fetch(`/api/admin/events`);
+                        const events = await eventResponse.json();
+                        document.getElementById('total-content-count').textContent = items.length + events.length;
+                    }
+
+                    listElement.innerHTML = '';
+                    if (items.length === 0) {
+                        listElement.innerHTML = `<li class="py-3 text-gray-500">No ${type} added yet.</li>`;
+                        return;
+                    }
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'py-3 flex justify-between items-center';
+                        // Display price range for recommendations if available
+                        let priceDisplay = '';
+                        if (type === 'recommendations' && item.price_range) {
+                            priceDisplay = `<span class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full ml-1">${item.price_range}</span>`;
+                        }
+
+                        li.innerHTML = `<div>
+                                            <span class="font-medium">${item.name}</span> 
+                                            <span class="text-xs text-gray-500">(${item.category} in ${item.city_name || item.city})</span>
+                                            ${priceDisplay}
+                                        </div>
+                                        <div>
+                                            <button onclick="editContentItem('${type}', '${item.id}')" class="text-indigo-600 hover:text-indigo-900 text-sm mr-2">Edit</button>
+                                            <button onclick="deleteContentItem('${type}', '${item.id}')" class="text-red-600 hover:text-red-900 text-sm">Delete</button>
+                                        </div>`;
+                        listElement.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error(error.message);
+                    listElement.innerHTML = `<li class="py-3 text-red-500">Could not load ${type}.</li>`;
+                }
+            }
+
+            if (addRecommendationForm) {
+                addRecommendationForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this); // Includes recImageFile and other fields
+                    // If price_range container is hidden, its value might be submitted as empty or not at all.
+                    // Ensure backend handles optional price_range.
+                    if (recPriceRangeContainer.style.display === 'none' && formData.has('price_range')) {
+                        formData.delete('price_range');
+                    }
+
+                    try {
+                        const response = await fetch('/api/admin/recommendations/add', { method: 'POST', body: formData });
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({ message: 'Failed to add recommendation. Ensure image & data are valid.' }));
+                            throw new Error(errData.message);
+                        }
+                        alert('Recommendation added!'); this.reset(); recPriceRangeContainer.style.display = 'none'; loadAndDisplayContent('recommendations');
+                    } catch (error) { alert('Error: ' + error.message); }
+                });
+            }
+            if (addEventForm) {
+                addEventForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this); // Includes eventImageFile
+                    try {
+                        const response = await fetch('/api/admin/events/add', { method: 'POST', body: formData });
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({ message: 'Failed to add event. Ensure image & data are valid.' }));
+                            throw new Error(errData.message);
+                        }
+                        alert('Event added!'); this.reset(); loadAndDisplayContent('events');
+                    } catch (error) { alert('Error: ' + error.message); }
+                });
+            }
+
+            // --- User Management Section (Placeholder) ---
+            const usersListElement = document.getElementById('users-list');
+            async function loadAndDisplayUsers() {
+                if (!usersListElement) return;
+                usersListElement.innerHTML = '<li class="py-3 text-gray-500">Loading users...</li>';
+                try {
+                    const response = await fetch('/api/admin/users'); // HYPOTHETICAL
+                    if (!response.ok) throw new Error('Failed to fetch users');
+                    const users = await response.json();
+                    usersListElement.innerHTML = '';
+                    if (users.length === 0) {
+                        usersListElement.innerHTML = '<li class="py-3 text-gray-500">No users found.</li>';
+                        return;
+                    }
+                    users.forEach(user => {
+                        const li = document.createElement('li');
+                        li.className = 'py-3 flex justify-between items-center';
+                        li.innerHTML = `<span>${user.name} (${user.email})</span> <span class="text-xs ${user.isAdmin ? 'text-red-500 font-semibold' : 'text-gray-500'}">${user.role || (user.isAdmin ? 'Admin' : 'User')}</span>`;
+                        usersListElement.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error(error.message);
+                    usersListElement.innerHTML = '<li class="py-3 text-red-500">Could not load users.</li>';
+                }
+            }
+
+
+            // Placeholder for quick stats
+            async function fetchQuickStats() {
+                try {
+                    // Mock data, replace with API call `/api/admin/quick-stats`
+                    const stats = { signupsToday: Math.floor(Math.random() * 20), activeUsersToday: Math.floor(Math.random() * 100 + 50), avgSessionTime: `${Math.floor(Math.random() * 20 + 5)}m`, bounceRate: `${Math.floor(Math.random() * 50 + 10)}%`, revenueMonth: `$${Math.floor(Math.random() * 5000 + 1000)}` };
+                    if (document.getElementById('signups-today')) document.getElementById('signups-today').textContent = stats.signupsToday;
+                    if (document.getElementById('active-users-today')) document.getElementById('active-users-today').textContent = stats.activeUsersToday;
+                    if (document.getElementById('avg-session-time')) document.getElementById('avg-session-time').textContent = stats.avgSessionTime;
+                    if (document.getElementById('bounce-rate')) document.getElementById('bounce-rate').textContent = stats.bounceRate;
+                    if (document.getElementById('revenue-month')) document.getElementById('revenue-month').textContent = stats.revenueMonth;
+                    if (document.getElementById('total-emails')) document.getElementById('total-emails').textContent = Math.floor(Math.random() * 200 + 50);
+
+                } catch (error) { console.error("Failed to fetch quick stats", error); }
+            }
+
+
+        }); // End DOMContentLoaded
+
+        // --- Global action functions ---
+        function viewApplication(appId) { alert(`Viewing application ID: ${appId}. Implement detail view.`); }
+        async function updateApplicationStatus(appId, newStatus, buttonElement) {
+            if (!confirm(`Are you sure you want to set status to "${newStatus}" for application ${appId}?`)) return;
+            try {
+                const response = await fetch(`/api/admin/applications/${appId}/status`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus })
+                });
+                if (!response.ok) throw new Error(`Failed to update status: ${response.statusText}`);
+                alert(`Application ${appId} status updated to ${newStatus}.`);
+                const statusCell = buttonElement.closest('tr').querySelector('.status-cell');
+                if (statusCell) {
+                    let newBadge;
+                    if (newStatus === 'approved') newBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>';
+                    else if (newStatus === 'rejected') newBadge = '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>';
+                    statusCell.innerHTML = newBadge;
+                    buttonElement.parentElement.innerHTML = `<button onclick="viewApplication('${appId}')" class="text-indigo-600 hover:text-indigo-900 mr-2">View</button>`;
+                }
+                // Refresh pending application count
+                const appStatusFilter = document.getElementById('application-status-filter');
+                if (appStatusFilter && typeof fetchAndDisplayApplications === 'function') { // Check if function is defined
+                    fetchAndDisplayApplications(appStatusFilter.value);
+                }
+
+
+            } catch (error) { console.error('Error updating application status:', error); alert(`Error: ${error.message}`); }
+        }
+        function editCity(cityId) { alert(`Editing city ID: ${cityId}. Implement edit form/modal.`); }
+        async function deleteCity(cityId) {
+            if (!confirm(`Delete city ID: ${cityId}? This cannot be undone.`)) return;
+            try {
+                const response = await fetch(`/api/cities/delete/${cityId}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Failed to delete city');
+                alert('City deleted.');
+                if (typeof loadAndDisplayCities === 'function') loadAndDisplayCities(); // Reload cities
+            } catch (e) { alert('Error deleting city: ' + e.message); }
+        }
+
+        function editContentItem(type, itemId) { alert(`Editing ${type} ID: ${itemId}. Implement edit form/modal.`); }
+        async function deleteContentItem(type, itemId) {
+            if (!confirm(`Delete ${type.slice(0, -1)} ID: ${itemId}? This cannot be undone.`)) return;
+            try {
+                const response = await fetch(`/api/admin/${type}/delete/${itemId}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error(`Failed to delete ${type.slice(0, -1)}`);
+                alert(`${type.slice(0, -1)} deleted.`);
+                if (typeof loadAndDisplayContent === 'function') loadAndDisplayContent(type); // Reload content
+            } catch (e) { alert(`Error deleting ${type.slice(0, -1)}: ` + e.message); }
+        }
+    </script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKcREr-zJD-nofGVMImYvOe3fwiRaa9GQ",
+            authDomain: "test-86a96.firebaseapp.com",
+            projectId: "test-86a96",
+            storageBucket: "test-86a96.firebasestorage.app",
+            messagingSenderId: "447058829158",
+            appId: "1:447058829158:web:ca487713545330d728f2a7",
+            measurementId: "G-J7ET8S88PR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+</body>
+
+</html>
